@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema(
     pincode: Number,
     googleId: { type: String },
     displayName: String,
-    email: { type: String, required: true, unique: true },
+    email: { type: String },
+    phone: Number,
     image: {
       type: String,
       default:

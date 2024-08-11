@@ -671,6 +671,7 @@ exports.fetchProductsByCategory = async (req, res) => {
       const products = await productsDB
         .find({
           category: category,
+          isAccessories: false,
         })
         .populate("author")
         .sort({ popularity: -1 })
