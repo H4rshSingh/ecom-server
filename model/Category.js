@@ -78,7 +78,7 @@ const categorySchema = new mongoose.Schema({
     type: [{ name: String, hexCode: String }],
   },
   availableServices: {
-    type: [{ name: String, cost: String }],
+    type: [{ name: String, cost: Number, unitType: String }],
   },
   specialRoom: {
     type: mongoose.Schema.Types.ObjectId,

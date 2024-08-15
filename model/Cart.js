@@ -21,7 +21,7 @@ const cartSchema = new mongoose.Schema({
         default: 1,
       },
       price: Number,
-      selectedServices: [{ name: String, cost: String, quantity: Number }],
+      selectedServices: [{ name: String, cost: Number, quantity: Number, unitType : String }],
       selectedAccessories: [{ quantity: Number }],
     },
   ],

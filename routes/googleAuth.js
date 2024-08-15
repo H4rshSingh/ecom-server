@@ -154,32 +154,47 @@ router.put(
 
 router.post("/create-user", async (req, res) => {
   try {
-    const { displayName, email } = req.body;
+    const { displayName, email, phone } = req.body;
     console.log(req.body);
     console.log(email);
-    if (!displayName || !email) {
-      console.log("Name and email are required");
+    if (!displayName || !email || !phone) {
+      console.log("Name, phone, email  are required");
       return res.status(400).json({ message: "Name and email are required" });
     }
+    if (email) {
+      const existingUser = await userDB.findOne({ email });
+      if (existingUser) {
+        console.log("User already exists with this email");
+        return res
+          .status(400)
+          .json({ message: "User already exists with this email" });
+      }
+    }
 
-    const existingUser = await userDB.findOne({ email });
-    if (existingUser) {
-      console.log("User already exists");
-      return res
-        .status(400)
-        .json({ message: "User already exists with this email" });
+    if (phone) {
+      console.log(phone)
+      const existingUser = await userDB.findOne({ phone });
+      console.log(existingUser)
+      if (existingUser) {
+        console.log("User already exists with this phone");
+        return res
+          .status(400)
+          .json({ message: "User already exists with this phone" });
+      }
     }
 
     console.log("Creating user");
 
-    const user = new userDB({ displayName, email });
+    const user = new userDB({ displayName, email, phone });
     await user.save();
-    await sendEmailToUser(email);
+    // await sendEmailToUser(email);
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
 
 module.exports = router;

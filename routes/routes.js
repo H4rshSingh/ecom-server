@@ -113,10 +113,13 @@ router
 
 // Route to increase service quantity
 router.post("/cart/service/quantity", cartController.increaseServiceQuantity);
+router.post("/cart/service/addServicesToProduct", cartController.addServicesToProduct);
+router.post("/cart/service/deleteServiceFromProduct", cartController.deleteServiceFromProduct);
 router.post(
   "/cart/accessory/quantity",
   cartController.increaseAccessoriesQuantity
 );
+
 
 //Add free sanple in cart
 

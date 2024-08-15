@@ -12,6 +12,7 @@ exports.createCart = async (req, res) => {
     selectedAccessories,
   } = req.body;
 
+  console.log("selectedServices", selectedServices)
   // Ensure each accessory has a quantity of 1 if not provided
   const updatedAccessories = selectedAccessories?.map((accessory) => {
     if (!accessory.quantity) {
@@ -361,9 +362,114 @@ exports.increaseServiceQuantity = async (req, res) => {
   }
 };
 
-// Backend: controllers/cartController.js
+exports.addServicesToProduct = async (req, res) => {
+  const { deviceId, productId, selectedServices } = req.body;
 
-// const CartDB = require('../models/cart'); // Assuming your Cart model is defined correctly
+  console.log("selectedServices",selectedServices)
+
+  try {
+    const cart = await CartDB.findOne({ owner: deviceId })
+      .populate({
+        path: "items.productId",
+        select:
+          "productId productTitle price images category subcategory perUnitPrice totalPrice",
+      })
+      .populate("items.selectedAccessories")
+      .populate({
+        path: "freeSamples",
+        select:
+          "productId productTitle price images category subcategory perUnitPrice totalPrice",
+      })
+      .exec();
+
+    if (!cart) {
+      return res.status(404).send({ message: "Cart not found" });
+    }
+
+    const productIndex = cart.items.findIndex(
+      (item) => item.productId._id.toString() === productId
+    );
+
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Product not found in the cart" });
+    }
+
+    cart.items[productIndex].selectedServices = selectedServices;
+
+    cart.bill = cart.items.reduce((acc, curr) => {
+      const servicesCost = curr.selectedServices.reduce((serviceAcc, service) => {
+        return serviceAcc + service.cost * service.quantity;
+      }, 0);
+      return acc + curr.quantity * curr.price + servicesCost;
+    }, 0);
+
+    await cart.save();
+
+    res.status(200).send(cart);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+
+};
+
+exports.deleteServiceFromProduct = async (req, res) => {
+  try{
+    const { deviceId, productId, serviceId } = req.body;
+    console.log(deviceId)
+    console.log(req.body)
+    const cart = await CartDB.findOne({ owner: deviceId })
+      .populate({
+        path: "items.productId",
+        select:
+          "productId productTitle price images category subcategory perUnitPrice totalPrice",
+      })
+      .populate("items.selectedAccessories")
+      .populate({
+        path: "freeSamples",
+        select:
+          "productId productTitle price images category subcategory perUnitPrice totalPrice",
+      })
+      .exec();
+
+    if (!cart) {
+      return res.status(404).send({ message: "Cart not found" });
+    }
+
+    const productIndex = cart.items.findIndex(
+      (item) => item.productId._id.toString() === productId
+    );
+    console.log(productIndex)
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Product not found in the cart" });
+    }
+
+    const serviceIndex = cart.items[productIndex].selectedServices.findIndex(
+      (service) => service._id.toString() === serviceId
+    );
+
+    if (serviceIndex === -1) {
+      return res.status(404).send({ message: "Service not found in the product" });
+    }
+
+    cart.items[productIndex].selectedServices.splice(serviceIndex, 1);
+
+    cart.bill = cart.items.reduce((acc, curr) => {
+      const servicesCost = curr.selectedServices.reduce((serviceAcc, service) => {
+        return serviceAcc + service.cost * service.quantity;
+      }, 0);
+      return acc + curr.quantity * curr.price + servicesCost;
+    }, 0);
+
+    await cart.save();
+    console.log(cart)
+    res.status(200).send(cart);
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ message: error.message });
+}
+};
 
 exports.increaseAccessoriesQuantity = async (req, res) => {
   const { deviceId, productId, accessoryId, quantity } = req.body;
