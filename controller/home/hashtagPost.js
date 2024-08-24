@@ -12,6 +12,7 @@ exports.createHashtagPost = async (req, res) => {
       categoryId,
       categoryName,
     } = req.body;
+
     const hashtagPost = new HashtagPost({
       id,
       username,
@@ -21,9 +22,11 @@ exports.createHashtagPost = async (req, res) => {
       categoryId,
       categoryName,
     });
+
     await hashtagPost.save();
     res.status(201).json({ message: "Hashtag post added successfully!" });
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -34,9 +37,13 @@ exports.getHashtagPosts = async (req, res) => {
     const info = await HashtagPost.find().populate({
       path: "products",
       model: "products",
+      localField: "products",
+      foreignField: "patternNumber",
     });
+
     res.status(200).json(info);
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -49,7 +56,10 @@ exports.getHashtagPostById = async (req, res) => {
     const info = await HashtagPost.findOne({ id: id }).populate({
       path: "products",
       model: "products",
+      localField: "products",
+      foreignField: "patternNumber",
     });
+
     res.status(200).json(info);
   } catch (error) {
     res.status(500).json({ message: error.message });

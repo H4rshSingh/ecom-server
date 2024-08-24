@@ -8,10 +8,10 @@ exports.createImgCircle = async (req, res) => {
     const { imgTitle, ...circles } = req.body;
     let url;
     if (req.body.category && req.body.demandtype) {
-      url = `${req.body.category}/category/all?demandtype=${req.body.demandtype}`;
+      url = `${req.body.category}/collection/all?demandtype=${req.body.demandtype}`;
     }
     if (req.body.category && req.body.offer) {
-      url = `${req.body.category}/category/all?offer=${req.body.offer
+      url = `${req.body.category}/collection/all?offer=${req.body.offer
         .replace(/%/g, "percent")
         .replace(/ /g, "-")}`;
     }

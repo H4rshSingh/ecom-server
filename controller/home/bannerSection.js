@@ -5,16 +5,24 @@ const Room = require("../../model/room");
 // POST: '/api/createBannerSection'  - homepageRoutes.js
 exports.createBannerSection = async (req, res) => {
   try {
-    const { text, roomId, mainHeading, description } = req.body;
-    const room = await Room.findById(roomId);
-    if (!room) {
-      return res.status(404).json({ message: "Room not found" });
+    console.log(req.body);
+    const { text1, text2, link,  roomId1, roomId2, mainHeading, description } = req.body;
+    const room1 = await Room.findById(roomId1);
+    if (!room1) {
+      return res.status(404).json({ message: "Room 1 not found" });
     }
+    const room2 = await Room.findById(roomId2);
+    if (!room2) {
+      return res.status(404).json({ message: "Room 2 not found" });
+    }
+
+   const mappedRoom = [{ text: text1, room: room1._id }, { text: text2, room: room2._id }];
+   console.log(mappedRoom);
     const bannerSection = new bannerSectionDB({
-      text,
-      room: room._id,
+      grid: mappedRoom,
       mainHeading,
       description,
+      link,
     });
     await bannerSection.save();
 
@@ -29,10 +37,7 @@ exports.createBannerSection = async (req, res) => {
 // GET: '/api/getBannerSection'  - homepageRoutes.js
 exports.getBannerSection = async (req, res) => {
   try {
-    const info = await bannerSectionDB.find().populate({
-      path: "room",
-      model: Room,
-    });
+    const info = await bannerSectionDB.find().populate("grid.room");
     res.status(200).json(info);
   } catch (error) {
     res.status(500).json({ message: error.message });

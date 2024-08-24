@@ -67,6 +67,7 @@ router.post(
   uploadImage.fields([{ name: "image", maxCount: 1 }]),
   controller.CreateSubCategory
 );
+router.get("/checkKeyword", controller.checkKeyword);
 // router.post(
 //   "/updateCategoryGrid/:categoryId",
 //   uploadImage.fields([
@@ -119,7 +120,6 @@ router.post(
   "/cart/accessory/quantity",
   cartController.increaseAccessoriesQuantity
 );
-
 
 //Add free sanple in cart
 

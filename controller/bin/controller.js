@@ -3,6 +3,8 @@ const categoriesDB = require("../../model/Category");
 const citiesAndHobbiesDB = require("../../model/CityHobbie");
 const Product = require("../../model/Products");
 const roomsDB = require("../../model/room");
+const RoomMain = require("../../model/RoomMain");
+const Suggestion = require("../../model/Suggestions");
 // GET: api/categories
 exports.getCategories = async (req, res) => {
   try {
@@ -130,7 +132,7 @@ exports.createCategory = async (req, res) => {
       .status(201)
       .json({ message: "Category added successfully.", category: newCategory });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
@@ -475,5 +477,57 @@ exports.deleteCategorySecondGrid = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(400).send(err);
+  }
+};
+
+exports.checkKeyword = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+
+    if (!keyword) {
+      return res.status(400).json({ message: "Keyword is required." });
+    }
+
+    const isCategory = !!(await categoriesDB.findOne({ name: keyword }));
+
+    if (isCategory) {
+      return res.status(200).json({ type: "category" });
+    }
+
+    const category = await categoriesDB.findOne({
+      "subcategories.name": keyword,
+    });
+
+    const isSubCategory = !!category;
+
+    if (isSubCategory) {
+      return res
+        .status(200)
+        .json({ type: "subcategory", parentCategory: category.name });
+    }
+
+    const room = await RoomMain.findOne({
+      roomType: keyword,
+    });
+
+    const isRoom = !!room;
+
+    if (isRoom) {
+      return res.status(200).json({ type: "room" });
+    }
+
+    const suggestion = await Suggestion.findOne({
+      heading: keyword,
+    });
+
+    const isSuggestion = !!suggestion;
+
+    if (isSuggestion) {
+      return res.status(200).json({ type: "suggestion" });
+    }
+
+    res.status(200).json({ type: null });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };

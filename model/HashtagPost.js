@@ -16,7 +16,7 @@ const HashtagPostSchema = mongoose.Schema({
   },
   products: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "products",
     },
   ],
